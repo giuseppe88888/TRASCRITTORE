@@ -1,46 +1,42 @@
 import streamlit as st
-from faster_whisper import WhisperModel
-import tempfile
+from groq import Groq
 import os
+import tempfile
 
 st.title("Il mio Trascrittore Audio 🎙️")
-st.write("Carica il tuo file audio e io lo scriverò per te!")
+st.write("Versione Super-Veloce e Perfetta 🚀")
 
-# Carica il motore Turbo (velocissimo!)
-@st.cache_resource
-def load_model():
-    return WhisperModel("tiny", device="cpu", compute_type="int8")
-
-model = load_model()
+# Chiediamo la chiave magica
+chiave = st.text_input("Incolla qui il tuo Pass Speciale (API Key) di Groq:", type="password")
 
 audio_file = st.file_uploader("Carica l'audio qui", type=["m4a", "mp3", "wav"])
 
-if audio_file is not None:
+if audio_file is not None and chiave:
     if st.button("Trascrivi!"):
-        st.write("Sto ascoltando... vedrai le parole apparire qui sotto man mano che le capisco!")
-        
-        # Salviamo il file momentaneamente
+        st.write("Sto spedendo l'audio al Super-Computer... aspetta pochi secondi!")
+
         with tempfile.NamedTemporaryFile(delete=False, suffix=".m4a") as tmp:
             tmp.write(audio_file.read())
             tmp_path = tmp.name
-        
-        # Creiamo una scatola vuota dove far apparire il testo in diretta
-        scatola_testo = st.empty()
-        testo_completo = ""
-        
+
         try:
-            # L'IA inizia ad ascoltare
-            segments, info = model.transcribe(tmp_path, language="it")
-            
-            # Scriviamo ogni frase appena la sente!
-            for segment in segments:
-                testo_completo += segment.text + " "
-                scatola_testo.info(testo_completo)
-            
+            # Svegliamo il Super-Computer con la nostra chiave
+            client = Groq(api_key=chiave)
+
+            # Spediamo l'audio
+            with open(tmp_path, "rb") as file:
+                transcription = client.audio.transcriptions.create(
+                  file=(os.path.basename(tmp_path), file.read()),
+                  model="whisper-large-v3", # Il cervello più intelligente del mondo
+                  language="it",
+                )
+
             st.success("Finito!")
-            
+            # Mostriamo il testo perfetto!
+            st.text_area("Testo Trascritto:", transcription.text, height=350)
+
         except Exception as e:
-            st.error(f"Errore: {e}")
-            
+            st.error(f"C'è stato un problema: {e}")
+
         finally:
             os.remove(tmp_path)
