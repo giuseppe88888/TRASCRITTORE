@@ -7,11 +7,11 @@ import tempfile
 st.title("🎙️ Trascrittore Audio")
 st.write("Carica il tuo file audio e ottieni subito la trascrizione perfetta.")
 
-# L'app prende la chiave in automatico dal cassetto segreto (senza mostrare caselle)
+# L'app prende la chiave in automatico dal cassetto segreto
 try:
     chiave = st.secrets["GROQ_API_KEY"]
 except Exception:
-    st.error("Attenzione: non hai ancora configurato il 'cassetto segreto' (Secrets) su Streamlit!")
+    st.error("Attenzione: non hai configurato il 'cassetto segreto' (Secrets) su Streamlit!")
     chiave = None
 
 audio_file = st.file_uploader("Scegli il file audio (.m4a, .mp3, .wav)", type=["m4a", "mp3", "wav"])
@@ -39,8 +39,8 @@ if audio_file is not None and chiave:
                 
                 st.success("Fatto! Ecco il testo trascritto:")
                 
-                # Casella del testo con un bel pulsante integrato per copiare
-                st.text_area("Testo:", transcription.text, height=400)
+                # Qui usiamo un riquadro speciale che ha già un tasto "Copia" in alto a destra
+                st.code(transcription.text, language=None)
                 
             except Exception as e:
                 st.error(f"Si è verificato un errore: {e}")
