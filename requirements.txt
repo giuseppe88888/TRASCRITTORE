@@ -1,2 +1,2 @@
 streamlit
-faster-whisper
+groq
